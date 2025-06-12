@@ -69,17 +69,13 @@ WSGI_APPLICATION = 'online_agro_technics.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
+        'NAME': 'onlineagrotechnics',
         'USER': 'postgres',
-        'PASSWORD': 'G@lym2006',  # ← сенің нақты Supabase DB паролің
-        'HOST': 'jxuplfatfwzvftgrsfci.supabase.co',
+        'PASSWORD': 'Galym2006',
+        'HOST': 'localhost',
         'PORT': '5432',
-        'OPTIONS': {
-            'sslmode': 'require',
-        },
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
