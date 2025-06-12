@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Agro Technics{% endblock %}</title>
+    {% load django_bootstrap5 %}
+    {% bootstrap_css %}
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="bg-gradient-to-br from-green-100 to-blue-50">
+    <nav class="bg-gradient-to-r from-green-600 to-blue-600 p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="{% url 'accounts:dashboard' %}" class="text-2xl font-bold text-white animate-pulse">Agro Technics</a>
+            <div class="space-x-4">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-light hover:bg-green-700 transition duration-300 animate-slide-in">Dashboard</a>
+                    {% if request.user.profile.role == 'admin' %}
+                        <a href="{% url 'accounts:admin_dashboard' %}" class="btn btn-outline-light hover:bg-blue-700 transition duration-300 animate-slide-in">Admin Panel</a>
+                    {% elif request.user.profile.role == 'worker' %}
+                        <a href="{% url 'orders:worker_orders' %}" class="btn btn-outline-light hover:bg-blue-700 transition duration-300 animate-slide-in">Worker Orders</a>
+                    {% else %}
+                        <a href="{% url 'orders:customer_dashboard' %}" class="btn btn-outline-light hover:bg-green-700 transition duration-300 animate-slide-in">Customer Dashboard</a>
+                    {% endif %}
+                    <a href="{% url 'accounts:edit_profile' %}" class="btn btn-outline-light hover:bg-purple-700 transition duration-300 animate-slide-in">Edit Profile</a>
+                    <a href="{% url 'accounts:logout' %}" class="btn btn-outline-light hover:bg-red-700 transition duration-300 animate-slide-in">Logout</a>
+                {% else %}
+                    <a href="{% url 'accounts:register' %}" class="btn btn-outline-light hover:bg-green-700 transition duration-300 animate-slide-in">Register</a>
+                    <a href="{% url 'accounts:login' %}" class="btn btn-outline-light hover:bg-blue-700 transition duration-300 animate-slide-in">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    {% bootstrap_messages %}
+
+    <div class="container mt-6">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    {% bootstrap_javascript %}
+    <script src="{% static 'js/scripts.js' %}"></script>
+</body>
+</html>

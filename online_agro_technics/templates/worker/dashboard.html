@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Панель рабочего{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6 mt-6 bg-white rounded-xl shadow-2xl animate-fade-in">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4 animate-fade-in-up">
+                <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'images/default_avatar.jpg' %}{% endif %}" class="card-img-top rounded-lg" alt="Avatar">
+                <div class="card-body text-center">
+                    <h5 class="text-xl font-semibold">{{ user.username }}</h5>
+                    <p class="text-gray-600">{{ profile.description|default:'Нет описания' }}</p>
+                    <p>Завершено заказов: <span class="font-bold">{{ profile.completed_orders }}</span></p>
+                    <p>Рейтинг: <span class="font-bold">{{ profile.rating|floatformat:1 }}</span></p>
+                    <p class="text-gray-700">Телефон: {{ profile.phone_number|default:"Не указан" }}</p>
+                    <a href="{% url 'accounts:edit_profile' %}" class="btn btn-primary w-full mt-2 animate-pulse">Редактировать профиль</a>
+                </div>
+            </div>
+            <div class="card animate-fade-in-up">
+                <div class="card-body">
+                    <h5 class="text-xl font-semibold text-green-700">Статистика заказов</h5>
+                    <canvas id="ordersChart" class="mt-4"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            {% if current_order %}
+            <div class="card mb-4 animate-fade-in-up">
+                <div class="card-body">
+                    <h5 class="text-xl font-semibold text-blue-700">Текущий заказ</h5>
+                    <p><strong>Услуга:</strong> {{ current_order.service_type.name|default:'Не указано' }}</p>
+                    <p><strong>Адрес:</strong> {{ current_order.address|default:'Не указан' }}</p>
+                    <p><strong>Район:</strong> {{ current_order.district|default:'Не указан' }}</p>
+                    <p><strong>Стоимость:</strong> {{ current_order.cost|default:'Не указана'|floatformat:2 }} тг.</p>
+                    <p><strong>Статус:</strong> {{ current_order.get_status_display }}</p>
+                    <p><strong>Сипаттама:</strong> {{ current_order.description|default:'Нет описания' }}</p>
+                    <p><strong>Телефон заказчика:</strong> {{ current_order.customer_id.profile.phone_number|default:'Не указан' }}</p>
+                    <p><strong>Телефон рабочего:</strong> {{ current_order.worker_id.profile.phone_number|default:'Не назначен' }}</p>
+                    <p><strong>Координаты (Долгота):</strong> {{ current_order.longitude|default:'Не указана' }}</p>
+                    <p><strong>Координаты (Широта):</strong> {{ current_order.latitude|default:'Не указана' }}</p>
+                    <p><strong>Желаемое время:</strong> {{ current_order.desired_time|date:'d.m.Y H:i'|default:'Не указано' }}</p>
+                    <p><strong>Дата создания:</strong> {{ current_order.created_at|date:'d.m.Y H:i' }}</p>
+                    <p><strong>Дата обновления:</strong> {{ current_order.updated_at|date:'d.m.Y H:i' }}</p>
+                    <div id="map" style="height: 200px; border-radius: 8px;" class="mt-2"></div>
+                    {% if current_order.status == 'accepted' %}
+                    <form method="post" action="{% url 'orders:start_order' current_order.id %}" class="mt-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary w-full animate-pulse">Начать работу</button>
+                    </form>
+                    {% elif current_order.status == 'in_progress' %}
+                    <form method="post" action="{% url 'orders:complete_order' current_order.id %}" class="mt-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary w-full animate-pulse">Завершить</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <p class="text-gray-500 animate-fade-in-up">Нет активных заказов.</p>
+            {% endif %}
+            <h3 class="text-2xl font-bold text-green-700 mb-4 animate-slide-in">Доступные заказы</h3>
+            {% for order in available_orders %}
+            <div class="card mb-2 animate-fade-in-up">
+                <div class="card-body">
+                    <p><strong>Услуга:</strong> {{ order.service_type.name }}</p>
+                    <p><strong>Адрес:</strong> {{ order.address|default:"Не указан" }}</p>
+                    <p><strong>Стоимость:</strong> {{ order.cost }} тг.</p>
+                    <form method="post" action="{% url 'orders:accept_order' order.id %}" class="mt-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success w-full animate-pulse">Принять</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+            <h3 class="text-2xl font-bold text-green-700 mb-4 animate-slide-in">История заказов</h3>
+            {% for order in completed_orders %}
+            <div class="card mb-2 animate-fade-in-up">
+                <div class="card-body">
+                    <p><strong>Услуга:</strong> {{ order.service_type.name }}</p>
+                    <p><strong>Адрес:</strong> {{ order.address|default:"Не указан" }}</p>
+                    <p><strong>Оценка:</strong> {{ order.rating|default:"Не оценено" }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Chart.js конфигурациясы
+    const ctx = document.getElementById('ordersChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Доступно', 'Принято', 'В процессе', 'Завершено'],
+            datasets: [{
+                data: [
+                    {{ order_stats.available|default:0 }},
+                    {{ order_stats.accepted|default:0 }},
+                    {{ order_stats.in_progress|default:0 }},
+                    {{ order_stats.completed|default:0 }}
+                ],
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+</script>
+{% endblock %}

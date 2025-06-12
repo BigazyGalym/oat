@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Admin Panel{% endblock %}
+{% block content %}
+<div class="container mx-auto p-6 bg-white rounded-xl shadow-2xl animate-fade-in">
+    <h1 class="text-3xl font-bold text-green-700 mb-6">Админ панель</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} mb-4 p-4 rounded-lg animate-slide-in">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    <ul class="list-disc pl-6 space-y-3">
+        {% for order in orders %}
+            <li class="p-3 bg-gray-50 rounded-lg hover:bg-green-50 transition duration-300 animate-fade-in-up">
+                Заказ #{{ order.id }} - Статус: <span class="font-semibold">{{ order.get_status_display }}</span>
+                (Клиент: {{ order.customer_id.username }}, Рабочий: {{ order.worker_id.username|default:"Не назначен" }})
+            </li>
+        {% empty %}
+            <li class="p-3 bg-gray-50 rounded-lg text-gray-500 animate-fade-in-up">Тапсырыстар жоқ</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

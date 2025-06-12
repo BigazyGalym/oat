@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Оценка заказа{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6 mt-6 bg-white rounded-xl shadow-2xl animate-fade-in">
+    <h3 class="text-2xl font-bold text-green-700 mb-4 animate-slide-in">Оценка заказа #{{ order.id }}</h3>
+    <div class="card mb-4 animate-fade-in-up">
+        <div class="card-body">
+            <p><strong>Услуга:</strong> {{ order.service_type.name|default:'Не указано' }}</p>
+            <p><strong>Адрес:</strong> {{ order.address|default:'Не указан' }}</p>
+            <p><strong>Район:</strong> {{ order.district|default:'Не указан' }}</p>
+            <p><strong>Стоимость:</strong> {{ order.cost|default:'Не указана'|floatformat:2 }} тг.</p>
+            <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
+            <p><strong>Рабочий:</strong> {{ order.worker_id.username|default:'Не назначен' }}</p>
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="rating" class="block text-gray-700">Оценка (1-5):</label>
+                    <select name="rating" id="rating" class="form-control w-full p-2 rounded-lg" required>
+                        <option value="" selected disabled>Выберите оценку</option>
+                        {% for i in "12345"|make_list %}
+                            <option value="{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success btn-lg w-full animate-pulse">Отправить оценку</button>
+            </form>
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <a href="{% url 'orders:customer_dashboard' %}" class="btn btn-primary animate-pulse">Вернуться</a>
+</div>
+{% endblock %}

@@ -1,0 +1,128 @@
+/* static/css/login.css */
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #1a3c34, #4a7043);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container {
+    max-width: 500px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0, 255, 128, 0.3);
+    animation: fadeIn 1s ease-in-out;
+    text-align: center;
+}
+
+h2 {
+    font-size: 2em;
+    color: #00ff88;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.7);
+    animation: glow 2s infinite alternate;
+    margin-bottom: 20px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-field {
+    position: relative;
+    text-align: left;
+}
+
+.form-field label {
+    font-size: 1em;
+    color: #e0e0e0;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.form-field input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+.form-field input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    animation: pulse 0.5s infinite;
+}
+
+.error {
+    color: #ff4d4d;
+    font-size: 0.8em;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.btn {
+    padding: 12px;
+    background: #00ff88;
+    color: #1a3c34;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+.btn:hover {
+    background: #1a3c34;
+    color: #00ff88;
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+    animation: pulse 0.5s infinite;
+}
+
+.register-link {
+    margin-top: 20px;
+    font-size: 1em;
+    color: #e0e0e0;
+}
+
+.register-link a {
+    color: #00ff88;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.register-link a:hover {
+    color: #fff;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.7);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 5px rgba(0, 255, 136, 0.5); }
+    to { text-shadow: 0 0 15px rgba(0, 255, 136, 1); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}

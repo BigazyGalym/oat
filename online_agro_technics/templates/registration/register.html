@@ -1,0 +1,21 @@
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/register.css' %}">
+<div class="register-container">
+    <h2>Регистрация</h2>
+    <form method="post" enctype="multipart/form-data" class="register-form">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                    <span class="error">{{ field.errors|join:", " }}</span>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn">Зарегистрироваться</button>
+    </form>
+    <p class="login-link">Уже есть аккаунт? <a href="{% url 'accounts:login' %}">Войти</a></p>
+</div>
+{% endblock %}

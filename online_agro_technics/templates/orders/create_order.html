@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Создание заказа{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6 mt-6 bg-white rounded-xl shadow-2xl animate-fade-in">
+    <h3 class="text-2xl font-bold text-green-700 mb-4 animate-slide-in">Создание заказа</h3>
+    <div class="card mb-4 animate-fade-in-up">
+        <div class="card-body">
+            <form method="post" class="space-y-4" novalidate>
+                {% csrf_token %}
+                {{ form.service_type.label_tag }} {{ form.service_type }}
+                {{ form.district.label_tag }} {{ form.district }}
+                {{ form.address.label_tag }} {{ form.address }}
+                {{ form.cost.label_tag }} {{ form.cost }}
+                {{ form.phone_number.label_tag }} {{ form.phone_number }}
+                <button type="submit" class="btn btn-success btn-lg w-full animate-pulse">Создать заказ</button>
+            </form>
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <a href="{% url 'orders:customer_dashboard' %}" class="btn btn-primary animate-pulse">Вернуться</a>
+</div>
+{% endblock %}
