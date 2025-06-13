@@ -30,13 +30,21 @@
             {% for order in orders %}
             <div class="card mb-3 order-card animate-fade-in-up">
                 <div class="card-body">
-                    <p><strong>Услуга:</strong> {{ order.service_type.name }}</p>
-                    <p><strong>Адрес:</strong> {{ order.address|default:"Не указан" }}</p>
-                    <p><strong>Район:</strong> {{ order.district|default:"Не указан" }}</p>
-                    <p><strong>Стоимость:</strong> {{ order.cost|default:"Не указана" }} тг.</p>
+                    <p><strong>Услуга:</strong> {{ order.service_type.name|default:'Не указано' }}</p>
+                    <p><strong>Адрес:</strong> {{ order.address|default:'Не указан' }}</p>
+                    <p><strong>Район:</strong> {{ order.district|default:'Не указан' }}</p>
+                    <p><strong>Стоимость:</strong> {{ order.cost|default:'Не указана'|floatformat:2 }} тг.</p>
                     <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
-                    <p><strong>Телефон заказчика:</strong> {{ order.customer_id.profile.phone_number|default:"Не указан" }}</p>
-                    <p><strong>Телефон рабочего:</strong> {{ order.worker_id.profile.phone_number|default:"Не назначен" }}</p>
+                    <p><strong>Сипаттама:</strong> {{ order.description|default:'Нет описания' }}</p>
+                    <p><strong>Телефон заказчика:</strong> {{ order.customer_id.profile.phone_number|default:'Не указан' }}</p>
+                    <p><strong>Рабочий:</strong> {{ order.worker_id.username|default:'Не назначен' }}</p>
+                    <p><strong>Телефон рабочего:</strong> {{ order.worker_id.profile.phone_number|default:'Не назначен' }}</p>
+                    <p><strong>Координаты (Долгота):</strong> {{ order.longitude|default:'Не указана' }}</p>
+                    <p><strong>Координаты (Широта):</strong> {{ order.latitude|default:'Не указана' }}</p>
+                    <p><strong>Желаемое время:</strong> {{ order.desired_time|date:'d.m.Y H:i'|default:'Не указано' }}</p>
+                    <p><strong>Дата создания:</strong> {{ order.created_at|date:'d.m.Y H:i' }}</p>
+                    <p><strong>Дата обновления:</strong> {{ order.updated_at|date:'d.m.Y H:i' }}</p>
+                    <p><strong>Дата завершения:</strong> {{ order.completed_at|date:'d.m.Y H:i'|default:'Не указано' }}</p>
                     {% if order.status == 'available' %}
                     <form method="post" action="{% url 'orders:cancel_customer_order' order.id %}" class="mt-2">
                         {% csrf_token %}
@@ -66,10 +74,8 @@
     .animate-fade-in { animation: fadeIn 0.6s ease-in-out; }
     .animate-fade-in-up { animation: fadeInUp 0.6s ease-in-out; }
     .animate-slide-in { animation: slideIn 0.6s ease-in-out; }
-    .animate-pulse { animation: pulse 0.6s infinite; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 </style>
 {% endblock %}

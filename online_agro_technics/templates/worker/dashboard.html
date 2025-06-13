@@ -21,7 +21,7 @@
             <div class="card animate-fade-in-up">
                 <div class="card-body">
                     <h5 class="text-xl font-semibold text-green-700">Статистика заказов</h5>
-                    <canvas id="ordersChart" class="mt-4"></canvas>
+                    <canvas id="ordersChart" class="mt-4" style="max-height: 300px;"></canvas>
                 </div>
             </div>
         </div>
@@ -64,9 +64,13 @@
             {% for order in available_orders %}
             <div class="card mb-2 animate-fade-in-up">
                 <div class="card-body">
-                    <p><strong>Услуга:</strong> {{ order.service_type.name }}</p>
-                    <p><strong>Адрес:</strong> {{ order.address|default:"Не указан" }}</p>
-                    <p><strong>Стоимость:</strong> {{ order.cost }} тг.</p>
+                    <p><strong>Услуга:</strong> {{ order.service_type.name|default:'Не указано' }}</p>
+                    <p><strong>Адрес:</strong> {{ order.address|default:'Не указан' }}</p>
+                    <p><strong>Район:</strong> {{ order.district|default:'Не указан' }}</p>
+                    <p><strong>Стоимость:</strong> {{ order.cost|default:'Не указана'|floatformat:2 }} тг.</p>
+                    <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
+                    <p><strong>Заказчик:</strong> {{ order.customer_id.username|default:'Не указан' }}</p>
+                    <p><strong>Телефон заказчика:</strong> {{ order.customer_id.profile.phone_number|default:'Не указан' }}</p>
                     <form method="post" action="{% url 'orders:accept_order' order.id %}" class="mt-2">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-success w-full animate-pulse">Принять</button>
@@ -78,9 +82,15 @@
             {% for order in completed_orders %}
             <div class="card mb-2 animate-fade-in-up">
                 <div class="card-body">
-                    <p><strong>Услуга:</strong> {{ order.service_type.name }}</p>
-                    <p><strong>Адрес:</strong> {{ order.address|default:"Не указан" }}</p>
-                    <p><strong>Оценка:</strong> {{ order.rating|default:"Не оценено" }}</p>
+                    <p><strong>Услуга:</strong> {{ order.service_type.name|default:'Не указано' }}</p>
+                    <p><strong>Адрес:</strong> {{ order.address|default:'Не указан' }}</p>
+                    <p><strong>Район:</strong> {{ order.district|default:'Не указан' }}</p>
+                    <p><strong>Стоимость:</strong> {{ order.cost|default:'Не указана'|floatformat:2 }} тг.</p>
+                    <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
+                    <p><strong>Заказчик:</strong> {{ order.customer_id.username|default:'Не указан' }}</p>
+                    <p><strong>Телефон заказчика:</strong> {{ order.customer_id.profile.phone_number|default:'Не указан' }}</p>
+                    <p><strong>Оценка:</strong> {{ order.rating|default:'Не оценено' }}</p>
+                    <p><strong>Дата завершения:</strong> {{ order.completed_at|date:'d.m.Y H:i'|default:'Не указано' }}</p>
                 </div>
             </div>
             {% endfor %}
@@ -111,5 +121,21 @@
             maintainAspectRatio: false
         }
     });
+
+    // Google Maps (пример, нужно API ключ)
+    function initMap() {
+        if (document.getElementById('map') && current_order && current_order.latitude && current_order.longitude) {
+            const map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: parseFloat(current_order.latitude), lng: parseFloat(current_order.longitude) },
+                zoom: 15,
+            });
+            new google.maps.Marker({
+                position: { lat: parseFloat(current_order.latitude), lng: parseFloat(current_order.longitude) },
+                map: map,
+            });
+        }
+    }
+    // API ключ қосу және карта жүктеу
+    // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
 </script>
 {% endblock %}

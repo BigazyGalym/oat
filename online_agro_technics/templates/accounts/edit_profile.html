@@ -1,21 +1,38 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}  <!-- Если используете django-widget-tweaks -->
 
 {% block title %}Редактировать профиль{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title text-center">Редактировать профиль</h3>
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary w-100">Сохранить</button>
-                </form>
+<div class="container mx-auto p-6 mt-6 bg-white rounded-xl shadow-2xl animate-fade-in">
+    <h2 class="text-2xl font-bold text-green-700 mb-4 animate-slide-in">Редактировать профиль</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    <form method="post" enctype="multipart/form-data" class="profile-form">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-4">
+                <label for="{{ field.id_for_label }}" class="block text-gray-700 font-bold mb-2">{{ field.label }}</label>
+                {{ field|add_class:"form-control" }}
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <small class="text-red-500">{{ error }}</small>
+                    {% endfor %}
+                {% endif %}
             </div>
-        </div>
-    </div>
-</div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary w-full animate-pulse">Сохранить изменения</button>
+    </form>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.6s ease-in-out; }
+    .animate-slide-in { animation: slideIn 0.6s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+</style>
+
 {% endblock %}
-</div>

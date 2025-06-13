@@ -135,15 +135,31 @@ def dashboard(request):
 
 @login_required
 def edit_profile(request):
-    if request.method == 'POST':
-        form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Профиль обновлён.')
-            return redirect('accounts:dashboard')
-    else:
-        form = ProfileForm(instance=request.user.profile)
-    return render(request, 'accounts/edit_profile.html', {'form': form})
+    try:
+        profile = request.user.profile
+        if request.method == 'POST':
+            form = ProfileForm(request.POST, request.FILES, instance=profile)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Профиль успешно обновлен.')
+                return redirect('accounts:edit_profile')
+            else:
+                messages.error(request, 'Проверьте введенные данные.')
+        else:
+            form = ProfileForm(instance=profile)
+        return render(request, 'accounts/edit_profile.html', {'form': form, 'profile': profile})
+    except Exception as e:
+        messages.error(request, f'Произошла ошибка: {str(e)}')
+        return redirect('home')
+
+def clear_avatar(request):
+    if request.method == 'GET':
+        profile = request.user.profile
+        if profile.avatar:
+            profile.avatar.delete()
+            profile.save()
+            messages.success(request, 'Аватар успешно удален.')
+        return redirect('accounts:edit_profile')
 
 @login_required
 def create_profile(request):

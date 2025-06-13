@@ -41,3 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+var myMap = new ymaps.Map("map", {
+    center: [{{ longitude|default:"43.238949" }}, {{ latitude|default:"76.889709" }}],
+    zoom: 10
+});
+var myPlacemark = new ymaps.Placemark([{{ latitude|default:"43.238949" }}, {{ longitude|default:"76.889709" }}], {
+    hintContent: 'Мое местоположение',
+    balloonContent: 'Это пример метки'
+});
+myMap.geoObjects.add(myPlacemark);

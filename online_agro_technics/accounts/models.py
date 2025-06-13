@@ -41,7 +41,7 @@ class Profile(models.Model):
     is_verified = models.BooleanField(default=False)
     district = models.CharField(max_length=100, choices=DISTRICT_CHOICES, null=True, blank=True, help_text="Рабочийдің қызмет көрсету ауданы")
     phone_number = models.CharField(max_length=15, blank=False, null=False)
-    service_type = models.ForeignKey('orders.ServiceType', on_delete=models.SET_NULL, null=True, blank=True)
+    service_type = models.ForeignKey('orders.ServiceType', on_delete=models.SET_NULL, null=True, blank=True)  # Строка сілтемесі
 
     def __str__(self):
         return f"{self.user.username} - {self.get_role_display()}"

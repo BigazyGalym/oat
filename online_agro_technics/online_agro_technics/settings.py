@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 SECRET_KEY = 'django-insecure-your-secret-key-here'  # Өз кілтіңізді қосыңыз
 DEBUG = True
-ALLOWED_HOSTS = ['playstationgabi.pythonanywhere.com']
+ALLOWED_HOSTS = ['127.0.0.1' , 'localhost']
 
 # Application definition
 INSTALLED_APPS = [
@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django_bootstrap5',
     'accounts',
     'orders',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

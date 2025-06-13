@@ -5,44 +5,49 @@
 
 {% block content %}
 <div class="container mx-auto p-6 mt-6 bg-white rounded-xl shadow-2xl animate-fade-in">
-    <h3 class="text-2xl font-bold text-green-700 mb-4 animate-slide-in">Доступные заказы</h3>
-    {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-    {% endif %}
-    {% if active_order %}
-    <div class="card mb-4 animate-fade-in-up">
+    <h3 class="text-2xl font-bold text-green-700 mb-4 animate-slide-in">Мои заказы</h3>
+    {% for order in orders %}
+    <div class="card mb-3 order-card animate-fade-in-up">
         <div class="card-body">
-            <h5 class="text-xl font-semibold text-blue-700">Текущий заказ</h5>
-            <p><strong>Услуга:</strong> {{ active_order.service_type.name }}</p>
-            <p><strong>Адрес:</strong> {{ active_order.address|default:'Не указан' }}</p>
-            <p><strong>Стоимость:</strong> {{ active_order.cost|default:'Не указана'|floatformat:2 }} тг.</p>
-            <form method="post" action="{% url 'orders:cancel_order' active_order.id %}" class="mt-2">
+            <p><strong>Услуга:</strong> {{ order.service_type.name|default:'Не указано' }}</p>
+            <p><strong>Адрес:</strong> {{ order.address|default:'Не указан' }}</p>
+            <p><strong>Район:</strong> {{ order.district|default:'Не указан' }}</p>
+            <p><strong>Стоимость:</strong> {{ order.cost|default:'Не указана'|floatformat:2 }} тг.</p>
+            <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
+            <p><strong>Заказчик:</strong> {{ order.customer_id.username|default:'Не указан' }}</p>
+            <p><strong>Телефон заказчика:</strong> {{ order.customer_id.profile.phone_number|default:'Не указан' }}</p>
+            {% if order.status == 'accepted' %}
+            <form method="post" action="{% url 'orders:start_order' order.id %}" class="mt-2">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-danger w-full animate-pulse">Отменить заказ</button>
+                <button type="submit" class="btn btn-primary w-full animate-pulse">Начать работу</button>
             </form>
-        </div>
-    </div>
-    {% else %}
-    {% for order in available_orders %}
-    <div class="card mb-2 animate-fade-in-up">
-        <div class="card-body">
-            <p><strong>Услуга:</strong> {{ order.service_type.name }}</p>
-            <p><strong>Адрес:</strong> {{ order.address|default:"Не указан" }}</p>
-            <p><strong>Стоимость:</strong> {{ order.cost|default:"Не указана"|floatformat:2 }} тг.</p>
-            <form method="post" action="{% url 'orders:accept_order' order.id %}" class="mt-2">
+            {% elif order.status == 'in_progress' %}
+            <form method="post" action="{% url 'orders:complete_order' order.id %}" class="mt-2">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-success w-full animate-pulse">Принять</button>
+                <button type="submit" class="btn btn-primary w-full animate-pulse">Завершить</button>
             </form>
+            {% endif %}
+            {% if order.status == 'completed' and order.rating %}
+            <p><strong>Оценка:</strong> {{ order.rating }}</p>
+            {% endif %}
         </div>
     </div>
     {% empty %}
     <div class="card mb-3 animate-fade-in-up">
-        <div class="card-body text-center text-gray-500">Нет доступных заказов</div>
+        <div class="card-body text-center text-gray-500">Заказов нет</div>
     </div>
     {% endfor %}
     <a href="{% url 'orders:worker_dashboard' %}" class="btn btn-primary">Вернуться к панели</a>
-    {% endif %}
 </div>
+
+<style>
+    .order-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .order-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
+    .animate-fade-in { animation: fadeIn 0.6s ease-in-out; }
+    .animate-fade-in-up { animation: fadeInUp 0.6s ease-in-out; }
+    .animate-slide-in { animation: slideIn 0.6s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+</style>
 {% endblock %}

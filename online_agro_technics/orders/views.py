@@ -45,65 +45,71 @@ def worker_orders(request):
 
 @login_required
 def worker_dashboard(request):
-    current_order = Order.objects.filter(worker_id=request.user, status__in=['accepted', 'in_progress']).first()
-    completed_orders = Order.objects.filter(worker_id=request.user, status='completed')
-    profile = request.user.profile
-    available_orders_query = Order.objects.filter(
-        status='available',
-        district=profile.district,
-        service_type=profile.service_type
-    ) if not current_order else Order.objects.none()
+    try:
+        profile = request.user.profile
+        if profile.role != 'worker':
+            messages.error(request, 'У вас нет прав доступа к этой странице.')
+            return redirect('home')
 
-    order_stats = {
-        'available': available_orders_query.count(),
-        'accepted': Order.objects.filter(worker_id=request.user, status='accepted').count(),
-        'in_progress': Order.objects.filter(worker_id=request.user, status='in_progress').count(),
-        'completed': completed_orders.count(),
-    }
+        # Текущий заказ (принятый или в процессе)
+        current_order = Order.objects.filter(worker_id=request.user, status__in=['accepted', 'in_progress']).first()
 
-    return render(request, 'worker/dashboard.html', {
-        'current_order': current_order,
-        'completed_orders': completed_orders,
-        'available_orders': available_orders_query,
-        'profile': profile,
-        'order_stats': order_stats,
-    })
+        # Доступные заказы
+        available_orders = Order.objects.filter(status='available').exclude(worker_id=request.user)
+
+        # Завершенные заказы
+        completed_orders = Order.objects.filter(worker_id=request.user, status='completed')
+
+        # Статистика заказов
+        order_stats = {
+            'available': Order.objects.filter(status='available').count(),
+            'accepted': Order.objects.filter(status='accepted').count(),
+            'in_progress': Order.objects.filter(status='in_progress').count(),
+            'completed': Order.objects.filter(status='completed').count(),
+        }
+
+        context = {
+            'profile': profile,
+            'current_order': current_order,
+            'available_orders': available_orders,
+            'completed_orders': completed_orders,
+            'order_stats': order_stats,
+        }
+        return render(request, 'worker/dashboard.html', context)
+    except Exception as e:
+        messages.error(request, f'Произошла ошибка: {str(e)}')
+        return redirect('home')
 
 @login_required
 def accept_order(request, order_id):
     try:
         order = Order.objects.get(id=order_id, status='available')
-        profile = request.user.profile
-        if profile.district != order.district:
-            messages.error(request, 'Этот заказ не в вашем районе.')
-            return redirect('orders:worker_orders')
-
-        active_order = Order.objects.filter(worker_id=request.user, status__in=['accepted', 'in_progress']).first()
-        if active_order:
-            messages.error(request, 'У вас уже есть активный заказ.')
-            return redirect('orders:worker_orders')
-
-        order.worker_id = request.user
-        order.status = 'accepted'
-        order.save()
-        messages.success(request, 'Заказ принят.')
-        return redirect('orders:worker_orders')
+        if request.method == 'POST':
+            order.worker_id = request.user
+            order.status = 'accepted'
+            order.save()
+            messages.success(request, 'Заказ успешно принят.')
+            return redirect('orders:worker_dashboard')
+        return render(request, 'worker/dashboard.html', {'order': order})
     except Order.DoesNotExist:
-        messages.error(request, 'Заказ не найден.')
-        return redirect('orders:worker_orders')
+        messages.error(request, 'Заказ не найден или уже принят.')
+        return redirect('orders:worker_dashboard')
 
 @login_required
 def start_order(request, order_id):
     try:
-        order = Order.objects.get(id=order_id, worker_id=request.user, status='accepted')
-        order.status = 'in_progress'
-        order.save()
-        messages.success(request, 'Заказ начат.')
-        return redirect('orders:worker_dashboard')
+        order = Order.objects.get(id=order_id, status='accepted', worker_id=request.user)
+        if request.method == 'POST':
+            order.status = 'in_progress'
+            order.save()
+            messages.success(request, 'Работа начата.')
+            return redirect('orders:worker_dashboard')
+        return render(request, 'worker/dashboard.html', {'order': order})
     except Order.DoesNotExist:
-        messages.error(request, 'Заказ не найден.')
-        return redirect('orders:worker_orders')
-
+        messages.error(request, 'Заказ не найден или не принят вами.')
+        return redirect('orders:worker_dashboard')
+    
+    
 @login_required
 def complete_order(request, order_id):
     try:
