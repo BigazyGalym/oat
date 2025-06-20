@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Бронь жасау</h2>
+  <p>Жұмысшы: {{ availability.worker.username }}</p>
+  <p>Қызмет: {{ availability.service_type }}</p>
+  <p>Уақыт: {{ availability.start_time }} - {{ availability.end_time }}</p>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Брондау</button>
+  </form>
+{% endblock %}

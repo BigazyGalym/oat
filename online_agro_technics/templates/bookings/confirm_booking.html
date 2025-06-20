@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Броньды растау</h2>
+  <p>Клиент: {{ booking.customer.username }}</p>
+  <p>Қызмет: {{ booking.service_type }}</p>
+  <p>Уақыт: {{ booking.availability.start_time }} - {{ booking.availability.end_time }}</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success">Растау</button>
+    <a href="{% url 'bookings:worker_bookings' %}" class="btn btn-secondary">Артқа</a>
+  </form>
+{% endblock %}

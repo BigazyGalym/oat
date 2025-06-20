@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     'accounts',
     'orders',
     'widget_tweaks',
+    'forum',
+    'bookings',
 ]
 
 MIDDLEWARE = [

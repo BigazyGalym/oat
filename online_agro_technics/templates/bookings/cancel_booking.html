@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Броньды жою</h2>
+  <p>Клиент: {{ booking.customer.username }}</p>
+  <p>Жұмысшы: {{ booking.worker.username }}</p>
+  <p>Қызмет: {{ booking.service_type }}</p>
+  <p>Уақыт: {{ booking.availability.start_time }} - {{ booking.availability.end_time }}</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Жою</button>
+    <a href="{% url 'bookings:customer_bookings' %}" class="btn btn-secondary">Артқа</a>
+  </form>
+{% endblock %}

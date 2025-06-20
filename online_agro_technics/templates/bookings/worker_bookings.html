@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Менің броньдарым (Жұмысшы)</h2>
+  {% for booking in bookings %}
+    <div class="card mt-3">
+      <div class="card-body">
+        <p>Клиент: {{ booking.customer.username }}</p>
+        <p>Қызмет: {{ booking.service_type }}</p>
+        <p>Уақыт: {{ booking.availability.start_time }} - {{ booking.availability.end_time }}</p>
+        <p>Статус: {{ booking.get_status_display }}</p>
+        {% if booking.status == 'pending' %}
+          <a href="{% url 'bookings:confirm_booking' booking.id %}" class="btn btn-success">Растау</a>
+        {% endif %}
+        {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+          <a href="{% url 'bookings:cancel_booking' booking.id %}" class="btn btn-danger">Жою</a>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <p>Броньдар жоқ.</p>
+  {% endfor %}
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>{{ post.title }}</h2>
+  <p>{{ post.content }}</p>
+  <p><small>Автор: {{ post.author.username }} | {{ post.created_at }}</small></p>
+  <h3>Пікірлер</h3>
+  {% for comment in comments %}
+    <div class="card mt-2">
+      <div class="card-body">
+        <p>{{ comment.content }}</p>
+        <p><small>Автор: {{ comment.author.username }} | {{ comment.created_at }}</small></p>
+      </div>
+    </div>
+  {% empty %}
+    <p>Пікірлер жоқ.</p>
+  {% endfor %}
+  {% if user.is_authenticated %}
+    <h4>Пікір қосу</h4>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Пікір жіберу</button>
+    </form>
+  {% else %}
+    <p>Пікір қосу үшін <a href="{% url 'accounts:login' %}">кіріңіз</a>.</p>
+  {% endif %}
+{% endblock %}

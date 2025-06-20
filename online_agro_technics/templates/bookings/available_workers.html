@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Қолжетімді жұмысшылар</h2>
+  <form method="get">
+    <div class="form-group">
+      <label for="service_type">Қызмет түрі:</label>
+      <select name="service_type" class="form-control">
+        <option value="">Барлығы</option>
+        {% for st in service_types %}
+          <option value="{{ st.id }}" {% if st.id == selected_service_type %}selected{% endif %}>{{ st.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="district">Район:</label>
+      <select name="district" class="form-control">
+        <option value="">Барлығы</option>
+        {% for district in districts %}
+          <option value="{{ district.0 }}" {% if district.0 == selected_district %}selected{% endif %}>{{ district.1 }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Іздеу</button>
+  </form>
+  {% for availability in availabilities %}
+    <div class="card mt-3">
+      <div class="card-body">
+        <p>Жұмысшы: {{ availability.worker.username }}</p>
+        <p>Қызмет: {{ availability.service_type }}</p>
+        <p>Район: {{ availability.worker.profile.get_district_display }}</p>
+        <p>Уақыт: {{ availability.start_time }} - {{ availability.end_time }}</p>
+        <a href="{% url 'bookings:create_booking' availability.id %}" class="btn btn-primary">Брондау</a>
+      </div>
+    </div>
+  {% empty %}
+    <p>Қолжетімді жұмысшылар жоқ.</p>
+  {% endfor %}
+{% endblock %}
