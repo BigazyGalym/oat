@@ -1,13 +1,20 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block title %}Броньды жою{% endblock %}
 {% block content %}
-  <h2>Броньды жою</h2>
-  <p>Клиент: {{ booking.customer.username }}</p>
-  <p>Жұмысшы: {{ booking.worker.username }}</p>
-  <p>Қызмет: {{ booking.service_type }}</p>
-  <p>Уақыт: {{ booking.availability.start_time }} - {{ booking.availability.end_time }}</p>
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Жою</button>
-    <a href="{% url 'bookings:customer_bookings' %}" class="btn btn-secondary">Артқа</a>
-  </form>
+<div class="container mx-auto p-6 bg-white rounded-xl shadow-2xl animate-fade-in">
+    <h2 class="text-2xl font-bold text-green-700 mb-4 animate-slide-in">Броньды жою</h2>
+    <div class="bg-gray-50 p-4 rounded-lg animate-fade-in-up">
+        <p><strong>Клиент:</strong> {{ booking.customer.username }}</p>
+        <p><strong>Жұмысшы:</strong> {{ booking.worker.username }}</p>
+        <p><strong>Қызмет:</strong> {{ booking.service_type }}</p>
+        <p><strong>Уақыт:</strong> {{ booking.availability.start_time }} - {{ booking.availability.end_time }}</p>
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            <button type="submit" class="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition animate-pulse">Жою</button>
+            <a href="{% url 'bookings:customer_bookings' %}" class="py-2 px-4 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition ml-2">Артқа</a>
+        </form>
+    </div>
+</div>
 {% endblock %}

@@ -1,27 +1,40 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block title %}{{ post.title }}{% endblock %}
 {% block content %}
-  <h2>{{ post.title }}</h2>
-  <p>{{ post.content }}</p>
-  <p><small>Автор: {{ post.author.username }} | {{ post.created_at }}</small></p>
-  <h3>Пікірлер</h3>
-  {% for comment in comments %}
-    <div class="card mt-2">
-      <div class="card-body">
-        <p>{{ comment.content }}</p>
-        <p><small>Автор: {{ comment.author.username }} | {{ comment.created_at }}</small></p>
-      </div>
+<div class="container mx-auto p-6 bg-white rounded-xl shadow-2xl animate-fade-in">
+    <h2 class="text-2xl font-bold text-green-700 mb-4 animate-slide-in">{{ post.title }}</h2>
+    <p class="text-gray-600">{{ post.content }}</p>
+    <p class="text-sm text-gray-500 mb-4">Автор: {{ post.author.username }} | {{ post.created_at }}</p>
+    <h3 class="text-xl font-bold text-green-700 mb-4 animate-slide-in">Пікірлер</h3>
+    <div class="space-y-4">
+        {% for comment in comments %}
+            <div class="p-4 bg-gray-50 rounded-lg hover:bg-green-50 transition transform hover:-translate-y-1">
+                <p class="text-gray-600">{{ comment.content }}</p>
+                <p class="text-sm text-gray-500">Автор: {{ comment.author.username }} | {{ comment.created_at }}</p>
+            </div>
+        {% empty %}
+            <p class="p-4 bg-gray-50 rounded-lg text-gray-500">Пікірлер жоқ.</p>
+        {% endfor %}
     </div>
-  {% empty %}
-    <p>Пікірлер жоқ.</p>
-  {% endfor %}
-  {% if user.is_authenticated %}
-    <h4>Пікір қосу</h4>
-    <form method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="btn btn-primary">Пікір жіберу</button>
-    </form>
-  {% else %}
-    <p>Пікір қосу үшін <a href="{% url 'accounts:login' %}">кіріңіз</a>.</p>
-  {% endif %}
+    {% if user.is_authenticated %}
+        <h4 class="text-lg font-bold text-green-700 mt-6 mb-4 animate-slide-in">Пікір қосу</h4>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {% for field in form %}
+                <div>
+                    <label class="block text-gray-700 font-semibold">{{ field.label }}</label>
+                    {{ field|add_class:"w-full p-2 border rounded-lg focus:ring-2 focus:ring-green-500" }}
+                    {% if field.errors %}
+                        <span class="text-red-500 text-sm">{{ field.errors|join:", " }}</span>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition animate-pulse">Пікір жіберу</button>
+        </form>
+    {% else %}
+        <p class="mt-4">Пікір қосу үшін <a href="{% url 'accounts:login' %}" class="text-green-600 hover:text-green-800">кіріңіз</a>.</p>
+    {% endif %}
+</div>
 {% endblock %}

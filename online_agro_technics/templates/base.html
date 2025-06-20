@@ -5,46 +5,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Agro Technics{% endblock %}</title>
-    {% load django_bootstrap5 %}
-    {% bootstrap_css %}
-    {% bootstrap_javascript %}
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <script src="{% static 'js/scripts.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+    <script src="{% static 'js/scripts.js' %}" defer></script>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'home' %}">Agro Technics</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'accounts:dashboard' %}">Дашборд</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'forum:forum_list' %}">Форум</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'bookings:available_workers' %}">Брондау</a></li>
-                        {% if user.profile.is_worker %}
-                            <li class="nav-item"><a class="nav-link" href="{% url 'bookings:worker_availability' %}">Бос уақыт</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{% url 'bookings:worker_bookings' %}">Менің броньдарым</a></li>
+<body class="bg-gradient-to-r from-green-100 to-blue-100 font-sans">
+    <nav class="bg-green-700 shadow-lg">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <a class="text-2xl font-bold text-white hover:text-green-200 transition" href="{% url 'home' %}">Agro Technics</a>
+                <button class="text-white md:hidden" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+                    </svg>
+                </button>
+                <div class="hidden md:flex space-x-4" id="navbarNav">
+                    <ul class="flex space-x-4">
+                        {% if user.is_authenticated %}
+                            <li><a class="text-white hover:text-green-200 transition" href="{% url 'accounts:dashboard' %}">Дашборд</a></li>
+                            <li><a class="text-white hover:text-green-200 transition" href="{% url 'forum:forum_list' %}">Форум</a></li>
+                            <li><a class="text-white hover:text-green-200 transition" href="{% url 'bookings:available_workers' %}">Брондау</a></li>
+                            {% if user.profile.is_worker %}
+                                <li><a class="text-white hover:text-green-200 transition" href="{% url 'bookings:worker_availability' %}">Бос уақыт</a></li>
+                                <li><a class="text-white hover:text-green-200 transition" href="{% url 'bookings:worker_bookings' %}">Менің броньдарым</a></li>
+                            {% else %}
+                                <li><a class="text-white hover:text-green-200 transition" href="{% url 'bookings:customer_bookings' %}">Менің броньдарым</a></li>
+                            {% endif %}
+                            <li><a class="text-white hover:text-green-200 transition" href="{% url 'accounts:logout' %}">Шығу</a></li>
                         {% else %}
-                            <li class="nav-item"><a class="nav-link" href="{% url 'bookings:customer_bookings' %}">Менің броньдарым</a></li>
+                            <li><a class="text-white hover:text-green-200 transition" href="{% url 'accounts:login' %}">Кіру</a></li>
+                            <li><a class="text-white hover:text-green-200 transition" href="{% url 'accounts:register' %}">Тіркелу</a></li>
                         {% endif %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'accounts:logout' %}">Шығу</a></li>
-                    {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'accounts:login' %}">Кіру</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'accounts:register' %}">Тіркелу</a></li>
-                    {% endif %}
-                </ul>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
-    <div class="container mt-4">
+    <div class="container mx-auto mt-6 px-4">
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="bg-{{ message.tags }}-500 text-white p-4 rounded-lg mb-4 animate-fade-in-up">
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button class="float-right text-white" data-bs-dismiss="alert">&times;</button>
                 </div>
             {% endfor %}
         {% endif %}

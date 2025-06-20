@@ -1,38 +1,45 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block title %}Қолжетімді жұмысшылар{% endblock %}
 {% block content %}
-  <h2>Қолжетімді жұмысшылар</h2>
-  <form method="get">
-    <div class="form-group">
-      <label for="service_type">Қызмет түрі:</label>
-      <select name="service_type" class="form-control">
-        <option value="">Барлығы</option>
-        {% for st in service_types %}
-          <option value="{{ st.id }}" {% if st.id == selected_service_type %}selected{% endif %}>{{ st.name }}</option>
+<div class="container mx-auto p-6 bg-white rounded-xl shadow-2xl animate-fade-in">
+    <h2 class="text-2xl font-bold text-green-700 mb-4 animate-slide-in">Қолжетімді жұмысшылар</h2>
+    <form method="get" class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label for="service_type" class="block text-gray-700 font-semibold">Қызмет түрі</label>
+            <select name="service_type" id="service_type" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+                <option value="">Барлығы</option>
+                {% for st in service_types %}
+                    <option value="{{ st.id }}" {% if st.id == selected_service_type %}selected{% endif %}>{{ st.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="district" class="block text-gray-700 font-semibold">Район</label>
+            <select name="district" id="district" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+                <option value="">Барлығы</option>
+                {% for district in districts %}
+                    <option value="{{ district.0 }}" {% if district.0 == selected_district %}selected{% endif %}>{{ district.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex items-end">
+            <button type="submit" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition animate-pulse">Іздеу</button>
+        </div>
+    </form>
+    <div class="space-y-4">
+        {% for availability in availabilities %}
+            <div class="p-4 bg-gray-50 rounded-lg hover:bg-green-50 transition transform hover:-translate-y-1">
+                <p><strong>Жұмысшы:</strong> {{ availability.worker.username }}</p>
+                <p><strong>Қызмет:</strong> {{ availability.service_type }}</p>
+                <p><strong>Район:</strong> {{ availability.worker.profile.get_district_display }}</p>
+                <p><strong>Уақыт:</strong> {{ availability.start_time }} - {{ availability.end_time }}</p>
+                <a href="{% url 'bookings:create_booking' availability.id %}" class="inline-block py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition animate-pulse">Брондау</a>
+            </div>
+        {% empty %}
+            <p class="p-4 bg-gray-50 rounded-lg text-gray-500">Қолжетімді жұмысшылар жоқ.</p>
         {% endfor %}
-      </select>
     </div>
-    <div class="form-group">
-      <label for="district">Район:</label>
-      <select name="district" class="form-control">
-        <option value="">Барлығы</option>
-        {% for district in districts %}
-          <option value="{{ district.0 }}" {% if district.0 == selected_district %}selected{% endif %}>{{ district.1 }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Іздеу</button>
-  </form>
-  {% for availability in availabilities %}
-    <div class="card mt-3">
-      <div class="card-body">
-        <p>Жұмысшы: {{ availability.worker.username }}</p>
-        <p>Қызмет: {{ availability.service_type }}</p>
-        <p>Район: {{ availability.worker.profile.get_district_display }}</p>
-        <p>Уақыт: {{ availability.start_time }} - {{ availability.end_time }}</p>
-        <a href="{% url 'bookings:create_booking' availability.id %}" class="btn btn-primary">Брондау</a>
-      </div>
-    </div>
-  {% empty %}
-    <p>Қолжетімді жұмысшылар жоқ.</p>
-  {% endfor %}
+</div>
 {% endblock %}
