@@ -98,11 +98,14 @@ WSGI_APPLICATION = "online_agro_technics.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 DATABASES = {
-    'default': dj_database_url.config(
-        default='postgres://postgres:Galym2006@localhost:5432/onlineagrotechnics',  # fallback
-        conn_max_age=600,
-        ssl_require=not DEBUG  # SSL production-да ғана керек
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'onlineagrotechnics',
+        'USER': 'postgres',
+        'PASSWORD': 'Galym2006',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
 }
 
 # Password validation
