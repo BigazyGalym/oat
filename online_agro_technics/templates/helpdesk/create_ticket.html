@@ -1,0 +1,15 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Создать тикет{% endblock %}
+{% block content %}
+<div class="container mx-auto mt-6">
+    <h1 class="text-2xl font-bold mb-4">Создать тикет</h1>
+    <form method="post" enctype="multipart/form-data" class="space-y-4">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Отправить тикет</button>
+    </form>
+    <a href="{% url 'helpdesk:ticket_list' %}" class="text-blue-600 hover:underline mt-4 inline-block">Вернуться к списку тикетов</a>
+</div>
+{% endblock %}

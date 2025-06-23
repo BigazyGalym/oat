@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from accounts.models import Profile  # Импорт Profile
+from accounts.models import Profile
 
 class ServiceType(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -16,7 +16,7 @@ class Order(models.Model):
         ('in_progress', 'В процессе'),
         ('completed', 'Завершен'),
     )
-    DISTRICT_CHOICES = Profile.DISTRICT_CHOICES  # Использование импортированного Profile
+    DISTRICT_CHOICES = Profile.DISTRICT_CHOICES 
     service_type = models.ForeignKey(ServiceType, on_delete=models.SET_NULL, null=True, verbose_name="Қызмет түрі")
     district = models.CharField(max_length=100, choices=DISTRICT_CHOICES, null=True, blank=True, verbose_name="Район")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available', verbose_name="Статус")

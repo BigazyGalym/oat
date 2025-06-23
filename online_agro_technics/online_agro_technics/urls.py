@@ -24,6 +24,7 @@ urlpatterns = [
     path('', home, name='home'),
     path('forum/', include('forum.urls')),
     path('bookings/', include('bookings.urls')),
+    path('helpdesk/', include('helpdesk.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

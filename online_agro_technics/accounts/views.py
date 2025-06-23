@@ -1,20 +1,20 @@
 import logging
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.core.mail import send_mail
-from django.utils.crypto import get_random_string
+from django.utils.crypto import get_random_string 
 import threading
 from django.utils import timezone
 from .forms import SignUpForm, ProfileForm, VerificationForm
 from .models import Profile, EmailVerificationCode, CustomUser
 from orders.models import Order
-from .forms import CustomAuthenticationForm  # Жаңа форма
+from .forms import CustomAuthenticationForm
+from helpdesk.models import Ticket
 
-# accounts/views.py
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
@@ -33,13 +33,12 @@ def custom_login(request):
                 next_url = request.GET.get('next', None)
                 if next_url:
                     return redirect(next_url)
-                # Рөлге байланысты бағыттау
                 if hasattr(user, 'profile') and user.profile.role == 'customer':
                     return redirect('orders:customer_dashboard')
                 elif hasattr(user, 'profile') and user.profile.role == 'worker':
                     return redirect('orders:worker_orders')
                 else:
-                    return redirect('home')  # Әдепкі бет
+                    return redirect('home') 
             else:
                 messages.error(request, 'Неверный email или пароль.')
         else:
@@ -175,13 +174,15 @@ def create_profile(request):
         form = ProfileForm()
     return render(request, 'accounts/create_profile.html', {'form': form})
 
+def is_admin(user):
+    return user.profile.is_admin
+
 @login_required
+@user_passes_test(is_admin, login_url='/accounts/login/')
 def admin_dashboard(request):
-    if not request.user.profile.is_admin():
-        messages.error(request, 'У вас нет прав доступа.')
-        return redirect('accounts:dashboard')
-    orders = Order.objects.all()
-    return render(request, 'accounts/admin_dashboard.html', {'orders': orders})
+    orders = Order.objects.all().order_by('-id')
+    tickets = Ticket.objects.all().order_by('-created_at')
+    return render(request, 'accounts/admin_dashboard.html', {'orders': orders, 'tickets': tickets})
 
 def custom_logout(request):
     request.session.flush()
