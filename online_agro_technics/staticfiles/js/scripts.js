@@ -1,13 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Auto-dismiss alerts
     setTimeout(() => {
         document.querySelectorAll('.alert').forEach(alert => {
             alert.classList.add('opacity-0');
             setTimeout(() => alert.remove(), 300);
         });
     }, 5000);
-
-    // Form validation
     document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', (event) => {
             if (!form.checkValidity()) {
@@ -17,8 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
             form.classList.add('was-validated');
         });
     });
-
-    // Button animations
     document.querySelectorAll('.btn').forEach(button => {
         button.addEventListener('click', function() {
             this.classList.add('animate-pulse');

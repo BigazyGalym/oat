@@ -20,7 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 SECRET_KEY = '3u0-cnz)!f)72o67@r@_&-4-5!phx$6_q+7y(=u#zf!mrhfhq5'  # Өз кілтіңізді қосыңыз
 DEBUG = True
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost','https://server-production-0e96.up.railway.app','https://online-agro-technic-service.onrender.com']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'server-production-0e96.up.railway.app',
+    'online-agro-technic-service.onrender.com',
+]
 
 # Application definition
 INSTALLED_APPS = [
