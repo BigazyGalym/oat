@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 SECRET_KEY = 'django-insecure-your-secret-key-here'  # Өз кілтіңізді қосыңыз
 DEBUG = True
-ALLOWED_HOSTS = ['https://server-production-0e96.up.railway.app']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost','https://server-production-0e96.up.railway.app']
 
 # Application definition
 INSTALLED_APPS = [
