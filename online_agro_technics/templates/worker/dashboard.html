@@ -1,94 +1,42 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Панель рабочего{% endblock %}
+{% block title %}Панель работника{% endblock %}
 {% block content %}
-<div class="container mx-auto p-6 mt-6 bg-white rounded-xl shadow-2xl animate-fade-in">
+<div class="container mx-auto p-8 bg-white rounded-xl custom-shadow animate-fade-in">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-            <div class="bg-gray-50 p-4 rounded-lg shadow-md animate-fade-in-up">
+            <div class="bg-gray-50 p-6 rounded-lg custom-shadow animate-fade-in">
                 <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'images/default_avatar.jpg' %}{% endif %}" class="rounded-lg w-full h-48 object-cover" alt="Avatar">
                 <div class="text-center mt-4">
-                    <h5 class="text-xl font-semibold text-green-700">{{ user.username }}</h5>
+                    <h5 class="text-xl font-semibold text-gray-800">{{ user.username }}</h5>
                     <p class="text-gray-600">{{ profile.description|default:'Нет описания' }}</p>
                     <p class="text-gray-600">Завершено заказов: <span class="font-bold">{{ profile.completed_orders }}</span></p>
                     <p class="text-gray-600">Рейтинг: <span class="font-bold">{{ profile.rating|floatformat:1 }}</span></p>
                     <p class="text-gray-600">Телефон: {{ profile.phone_number|default:"Не указан" }}</p>
-                    <a href="{% url 'accounts:edit_profile' %}" class="mt-4 inline-block py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition animate-pulse">Редактировать профиль</a>
+                    <a href="{% url 'accounts:edit_profile' %}" class="mt-4 inline-block py-3 px-6 btn-primary text-white rounded-lg hover-scale">Редактировать профиль</a>
                 </div>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg shadow-md mt-4 animate-fade-in-up">
-                <h5 class="text-xl font-semibold text-green-700">Статистика заказов</h5>
+            <div class="bg-gray-50 p-6 rounded-lg custom-shadow mt-4 animate-fade-in">
+                <h5 class="text-xl font-semibold text-gray-800">Статистика заказов</h5>
                 <canvas id="ordersChart" class="mt-4" style="max-height: 300px;"></canvas>
             </div>
         </div>
         <div class="md:col-span-2">
             {% if current_order %}
-                <div class="bg-gray-50 p-4 rounded-lg shadow-md animate-fade-in-up">
+                <div class="bg-gray-50 p-6 rounded-lg custom-shadow animate-fade-in">
                     <h5 class="text-xl font-semibold text-blue-700">Текущий заказ</h5>
                     <p><strong>Услуга:</strong> {{ current_order.service_type.name|default:'Не указано' }}</p>
                     <p><strong>Адрес:</strong> {{ current_order.address|default:'Не указан' }}</p>
                     <p><strong>Район:</strong> {{ current_order.district|default:'Не указан' }}</p>
                     <p><strong>Стоимость:</strong> {{ current_order.cost|default:'Не указана'|floatformat:2 }} тг.</p>
                     <p><strong>Статус:</strong> {{ current_order.get_status_display }}</p>
-                    <p><strong>Сипаттама:</strong> {{ current_order.description|default:'Нет описания' }}</p>
-                    <p><strong>Телефон заказчика:</strong> {{ current_order.customer_id.profile.phone_number|default:'Не указан' }}</p>
-                    <p><strong>Телефон рабочего:</strong> {{ current_order.worker_id.profile.phone_number|default:'Не назначен' }}</p>
+                    <p><strong>Описание:</strong> {{ current_order.description|default:'Нет описания' }}</p>
+                    <p><strong>Телефон клиента:</strong> {{ current_order.customer_id.profile.phone_number|default:'Не указан' }}</p>
+                    <p><strong>Телефон работника:</strong> {{ current_order.worker_id.profile.phone_number|default:'Не назначен' }}</p>
                     <p><strong>Координаты (Долгота):</strong> {{ current_order.longitude|default:'Не указана' }}</p>
                     <p><strong>Координаты (Широта):</strong> {{ current_order.latitude|default:'Не указана' }}</p>
                     <p><strong>Желаемое время:</strong> {{ current_order.desired_time|date:'d.m.Y H:i'|default:'Не указано' }}</p>
                     <p><strong>Дата создания:</strong> {{ current_order.created_at|date:'d.m.Y H:i' }}</p>
                     <p><strong>Дата обновления:</strong> {{ current_order.updated_at|date:'d.m.Y H:i' }}</p>
                     <div id="map" style="height: 200px; border-radius: 8px;" class="mt-2"></div>
-                    {% if current_order.status == 'accepted' %}
-                        <form method="post" action="{% url 'orders:start_order' current_order.id %}" class="mt-2">
-                            {% csrf_token %}
-                            <button type="submit" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition animate-pulse">Начать работу</button>
-                        </form>
-                    {% elif current_order.status == 'in_progress' %}
-                        <form method="post" action="{% url 'orders:complete_order' current_order.id %}" class="mt-2">
-                            {% csrf_token %}
-                            <button type="submit" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition animate-pulse">Завершить</button>
-                        </form>
-                    {% endif %}
-                </div>
-            {% else %}
-                <p class="p-4 bg-gray-50 rounded-lg text-gray-500 animate-fade-in-up">Нет активных заказов.</p>
-            {% endif %}
-            <h3 class="text-2xl font-bold text-green-700 mt-6 mb-4 animate-slide-in">Доступные заказы</h3>
-            <div class="space-y-4">
-                {% for order in available_orders %}
-                    <div class="p-4 bg-gray-50 rounded-lg hover:bg-green-50 transition transform hover:-translate-y-1">
-                        <p><strong>Услуга:</strong> {{ order.service_type.name|default:'Не указано' }}</p>
-                        <p><strong>Адрес:</strong> {{ order.address|default:'Не указан' }}</p>
-                        <p><strong>Район:</strong> {{ order.district|default:'Не указан' }}</p>
-                        <p><strong>Стоимость:</strong> {{ order.cost|default:'Не указана'|floatformat:2 }} тг.</p>
-                        <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
-                        <p><strong>Заказчик:</strong> {{ order.customer_id.username|default:'Не указан' }}</p>
-                        <p><strong>Телефон заказчика:</strong> {{ order.customer_id.profile.phone_number|default:'Не указан' }}</p>
-                        <form method="post" action="{% url 'orders:accept_order' order.id %}" class="mt-2">
-                            {% csrf_token %}
-                            <button type="submit" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition animate-pulse">Принять</button>
-                        </form>
-                    </div>
-                {% endfor %}
-            </div>
-            <h3 class="text-2xl font-bold text-green-700 mt-6 mb-4 animate-slide-in">История заказов</h3>
-            <div class="space-y-4">
-                {% for order in completed_orders %}
-                    <div class="p-4 bg-gray-50 rounded-lg hover:bg-green-50 transition transform hover:-translate-y-1">
-                        <p><strong>Услуга:</strong> {{ order.service_type.name|default:'Не указано' }}</p>
-                        <p><strong>Адрес:</strong> {{ order.address|default:'Не указан' }}</p>
-                        <p><strong>Район:</strong> {{ order.district|default:'Не указан' }}</p>
-                        <p><strong>Стоимость:</strong> {{ order.cost|default:'Не указана'|floatformat:2 }} тг.</p>
-                        <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
-                        <p><strong>Заказчик:</strong> {{ order.customer_id.username|default:'Не указан' }}</p>
-                        <p><strong>Телефон заказчика:</strong> {{ order.customer_id.profile.phone_number|default:'Не указан' }}</p>
-                        <p><strong>Оценка:</strong> {{ order.rating|default:'Не оценено' }}</p>
-                        <p><strong>Дата завершения:</strong> {{ order.completed_at|date:'d.m.Y H:i'|default:'Не указано' }}</p>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+                    {% if current_order.status == 'accepted'

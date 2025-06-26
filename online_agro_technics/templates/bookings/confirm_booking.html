@@ -1,18 +1,17 @@
 {% extends 'base.html' %}
-{% load widget_tweaks %}
-{% load static %}
-{% block title %}Броньды растау{% endblock %}
+{% load static widget_tweaks %}
+{% block title %}Подтверждение бронирования{% endblock %}
 {% block content %}
-<div class="container mx-auto p-6 bg-white rounded-xl shadow-2xl animate-fade-in">
-    <h2 class="text-2xl font-bold text-green-700 mb-4 animate-slide-in">Броньды растау</h2>
-    <div class="bg-gray-50 p-4 rounded-lg animate-fade-in-up">
+<div class="container mx-auto p-8 bg-white rounded-xl custom-shadow animate-fade-in">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 animate-slide-in">Подтверждение бронирования</h2>
+    <div class="bg-gray-50 p-6 rounded-lg animate-fade-in">
         <p><strong>Клиент:</strong> {{ booking.customer.username }}</p>
-        <p><strong>Қызмет:</strong> {{ booking.service_type }}</p>
-        <p><strong>Уақыт:</strong> {{ booking.availability.start_time }} - {{ booking.availability.end_time }}</p>
+        <p><strong>Услуга:</strong> {{ booking.service_type }}</p>
+        <p><strong>Время:</strong> {{ booking.availability.start_time }} - {{ booking.availability.end_time }}</p>
         <form method="post" class="mt-4">
             {% csrf_token %}
-            <button type="submit" class="py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition animate-pulse">Растау</button>
-            <a href="{% url 'bookings:worker_bookings' %}" class="py-2 px-4 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition ml-2">Артқа</a>
+            <button type="submit" class="py-3 px-6 btn-primary text-white rounded-lg hover-scale">Подтвердить</button>
+            <a href="{% url 'bookings:worker_bookings' %}" class="py-3 px-6 bg-gray-600 text-white rounded-lg hover:bg-gray-700 hover-scale ml-2">Назад</a>
         </form>
     </div>
 </div>

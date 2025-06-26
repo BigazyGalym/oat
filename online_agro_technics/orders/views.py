@@ -5,7 +5,7 @@ from .models import Order, ServiceType
 from accounts.models import Profile
 from django import forms
 
-# Форма класы
+
 class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
@@ -16,7 +16,6 @@ class OrderForm(forms.ModelForm):
             'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
-    # Таңдау тізімдері
     service_type = forms.ModelChoiceField(queryset=ServiceType.objects.all(), empty_label="Таңдаңыз", label="Қызмет түрі")
     district = forms.ChoiceField(choices=Profile.DISTRICT_CHOICES, label="Район")
 
@@ -50,17 +49,9 @@ def worker_dashboard(request):
         if profile.role != 'worker':
             messages.error(request, 'У вас нет прав доступа к этой странице.')
             return redirect('home')
-
-        # Текущий заказ (принятый или в процессе)
         current_order = Order.objects.filter(worker_id=request.user, status__in=['accepted', 'in_progress']).first()
-
-        # Доступные заказы
         available_orders = Order.objects.filter(status='available').exclude(worker_id=request.user)
-
-        # Завершенные заказы
         completed_orders = Order.objects.filter(worker_id=request.user, status='completed')
-
-        # Статистика заказов
         order_stats = {
             'available': Order.objects.filter(status='available').count(),
             'accepted': Order.objects.filter(status='accepted').count(),
