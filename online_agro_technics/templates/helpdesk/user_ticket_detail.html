@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static widget_tweaks %}
 {% block title %}Детали тикета{% endblock %}
 {% block content %}
 {% if request.user == ticket.user or request.user.profile.is_admin %}
