@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Order, ServiceType
+from .models import Order, ServiceType 
 from accounts.models import Profile
 from django import forms
 
@@ -46,14 +46,33 @@ def worker_orders(request):
 def worker_dashboard(request):
     try:
         profile = request.user.profile
+
         if profile.role != 'worker':
             messages.error(request, 'У вас нет прав доступа к этой странице.')
             return redirect('home')
-        current_order = Order.objects.filter(worker_id=request.user, status__in=['accepted', 'in_progress']).first()
-        available_orders = Order.objects.filter(status='available').exclude(worker_id=request.user)
-        completed_orders = Order.objects.filter(worker_id=request.user, status='completed')
+
+        # Тек ағымдағы заказ
+        current_order = Order.objects.filter(
+            worker_id=request.user, 
+            status__in=['accepted', 'in_progress']
+        ).first()
+
+        # Қолжетімді заказдар (услуга мен район бойынша фильтр)
+        available_orders = Order.objects.filter(
+            status='available',
+            service_type=profile.service_type,
+            district=profile.district
+        ).exclude(worker_id=request.user)
+
+        # Завершенные
+        completed_orders = Order.objects.filter(
+            worker_id=request.user, 
+            status='completed'
+        )
+
+        # Статистика
         order_stats = {
-            'available': Order.objects.filter(status='available').count(),
+            'available': available_orders.count(),  # фильтрден өткендер ғана
             'accepted': Order.objects.filter(status='accepted').count(),
             'in_progress': Order.objects.filter(status='in_progress').count(),
             'completed': Order.objects.filter(status='completed').count(),
@@ -67,6 +86,7 @@ def worker_dashboard(request):
             'order_stats': order_stats,
         }
         return render(request, 'worker/dashboard.html', context)
+
     except Exception as e:
         messages.error(request, f'Произошла ошибка: {str(e)}')
         return redirect('home')
@@ -187,3 +207,9 @@ def cancel_customer_order(request, order_id):
     except Order.DoesNotExist:
         messages.error(request, 'Заказ не найден или вам не принадлежит.')
         return redirect('orders:customer_dashboard')
+    
+@login_required
+def my_orders_view(request):
+    orders = Order.objects.filter(customer_id=request.user).order_by('-created_at')
+    return render(request, 'orders/my_orders.html', {'orders': orders})
+

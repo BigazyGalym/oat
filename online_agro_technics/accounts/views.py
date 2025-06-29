@@ -14,6 +14,13 @@ from .models import Profile, EmailVerificationCode, CustomUser
 from orders.models import Order
 from .forms import CustomAuthenticationForm
 from helpdesk.models import Ticket
+from helpdesk.models import HelpdeskTicket
+from django.http import JsonResponse
+from django.db.models import Count
+from datetime import timedelta
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
@@ -178,11 +185,36 @@ def is_admin(user):
     return user.profile.is_admin
 
 @login_required
-@user_passes_test(is_admin, login_url='/accounts/login/')
 def admin_dashboard(request):
-    orders = Order.objects.all().order_by('-id')
-    tickets = Ticket.objects.all().order_by('-created_at')
-    return render(request, 'accounts/admin_dashboard.html', {'orders': orders, 'tickets': tickets})
+    total_orders = Order.objects.count()
+    active_orders = Order.objects.exclude(status__in=['completed', 'cancelled']).count()
+    users = User.objects.count()
+    workers = Profile.objects.filter(role='worker').count()
+    customers = Profile.objects.filter(role='customer').count()
+    completed_orders = Order.objects.filter(status='completed').count()
+    cancelled_orders = Order.objects.filter(status='cancelled').count()
+    pending_tickets = Ticket.objects.filter(status='open').count()
+
+    context = {
+        'stats': {
+            'total_orders': total_orders,
+            'active_orders': active_orders,
+            'users': users,
+            'workers': workers,
+            'customers': customers,
+            'completed_orders': completed_orders,
+            'cancelled_orders': cancelled_orders,
+            'available_orders': Order.objects.filter(status='available').count(),
+            'accepted_orders': Order.objects.filter(status='accepted').count(),
+            'in_progress_orders': Order.objects.filter(status='in_progress').count(),
+            'pending_tickets': pending_tickets,
+        },
+        'recent_orders': Order.objects.order_by('-created_at')[:5],
+        'tickets': Ticket.objects.order_by('-created_at')[:5],  # ДҰРЫС модель қолданылған
+    }
+
+    return render(request, 'accounts/admin_dashboard.html', context)
+
 
 def custom_logout(request):
     request.session.flush()
@@ -190,3 +222,60 @@ def custom_logout(request):
     response = HttpResponseRedirect(reverse('accounts:login'))
     response.delete_cookie('sessionid')
     return response
+
+def admin_statistics_page(request):
+    return render(request, 'accounts/admin_statistics.html')  # Диаграмма орналасатын HTML бет
+
+def get_order_stats(request):
+    filter_type = request.GET.get('filter', 'month')
+    now = timezone.now()
+
+    if filter_type == 'day':
+        date_from = now - timedelta(days=6)
+        data = (
+            Order.objects
+            .filter(created_at__date__gte=date_from.date())
+            .extra({'day': "date(created_at)"})
+            .values('day')
+            .annotate(count=Count('id'))
+            .order_by('day')
+        )
+        labels = [item['day'] for item in data]
+        values = [item['count'] for item in data]
+
+    elif filter_type == 'week':
+        date_from = now - timedelta(weeks=6)
+        data = (
+            Order.objects
+            .filter(created_at__gte=date_from)
+            .extra({'week': "strftime('%%Y-%%W', created_at)"})
+            .values('week')
+            .annotate(count=Count('id'))
+            .order_by('week')
+        )
+        labels = [item['week'] for item in data]
+        values = [item['count'] for item in data]
+
+    elif filter_type == 'year':
+        data = (
+            Order.objects
+            .extra({'year': "strftime('%%Y', created_at)"})
+            .values('year')
+            .annotate(count=Count('id'))
+            .order_by('year')
+        )
+        labels = [item['year'] for item in data]
+        values = [item['count'] for item in data]
+
+    else:  # default: month
+        data = (
+            Order.objects
+            .extra({'month': "strftime('%%Y-%%m', created_at)"})
+            .values('month')
+            .annotate(count=Count('id'))
+            .order_by('month')
+        )
+        labels = [item['month'] for item in data]
+        values = [item['count'] for item in data]
+
+    return JsonResponse({'labels': labels, 'values': values})

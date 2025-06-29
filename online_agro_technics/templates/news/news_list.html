@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Новости{% endblock %}
+
+{% block content %}
+<div class="container mx-auto mt-10 px-4">
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">Новости</h1>
+
+    {% if user.profile.is_admin %}
+        <a href="{% url 'news:create_news' %}" class="btn btn-primary mb-4">Добавить новость</a>
+    {% endif %}
+
+    {% for news in news %}
+        <div class="card mb-4 shadow-sm">
+            {% if news.image %}
+                <img src="{{ news.image.url }}" class="card-img-top" alt="{{ news.title }}" style="max-height: 200px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{% url 'news:news_detail' news.id %}" class="text-decoration-none text-dark">
+                        {{ news.title }}
+                    </a>
+                </h5>
+                <p class="card-text">{{ news.content|truncatewords:30 }}</p>
+                <p class="card-text">
+                    <small class="text-muted">Опубликовано: {{ news.created_at|date:"d.m.Y H:i" }}</small>
+                </p>
+            </div>
+        </div>
+    {% empty %}
+        <p>Пока новостей нет.</p>
+    {% endfor %}
+</div>
+{% endblock %}

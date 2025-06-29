@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Мои заказы{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-10 px-6">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">📦 Мои заказы</h2>
+    <div class="space-y-4">
+        {% for order in orders %}
+            <div class="p-6 bg-gray-50 rounded-lg border shadow hover:shadow-lg transition">
+                <p><strong>Услуга:</strong> {{ order.service_type.name }}</p>
+                <p><strong>Адрес:</strong> {{ order.address }}</p>
+                <p><strong>Стоимость:</strong> {{ order.cost|floatformat:2 }} тг</p>
+                <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
+                <p><strong>Работник:</strong> {{ order.worker_id.username|default:"Не назначен" }}</p>
+
+                {% if order.status == 'available' %}
+                <form method="post" action="{% url 'orders:cancel_customer_order' order.id %}">
+                    {% csrf_token %}
+                    <button class="mt-2 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded">Отменить заказ</button>
+                </form>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p class="text-gray-500">У вас пока нет заказов.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

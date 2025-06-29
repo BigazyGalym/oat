@@ -1,60 +1,31 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}Панель клиента{% endblock %}
+
 {% block content %}
-<div class="container mx-auto p-8 bg-white rounded-xl custom-shadow animate-fade-in">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-            <div class="bg-gray-50 p-6 rounded-lg custom-shadow animate-fade-in">
-                <div class="text-center">
-                    <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'images/default_avatar.jpg' %}{% endif %}" class="rounded-full w-32 h-32 mx-auto border-4 border-green-600" alt="Avatar">
-                    <h5 class="mt-3 text-xl font-semibold text-gray-800">{{ user.username }}</h5>
-                    <p class="text-gray-600">Телефон: {{ profile.phone_number|default:"Не указан" }}</p>
-                    <p class="text-gray-600">{{ profile.description|default:'Нет описания' }}</p>
-                    <a href="{% url 'accounts:edit_profile' %}" class="mt-4 inline-block py-3 px-6 btn-primary text-white rounded-lg hover-scale">Редактировать профиль</a>
-                </div>
+<div class="container mx-auto py-10 px-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Профиль пользователя -->
+        <div class="bg-white p-6 rounded-xl shadow-md">
+            <div class="text-center">
+                <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'images/default_avatar.jpg' %}{% endif %}"
+                     class="w-32 h-32 rounded-full mx-auto border-4 border-green-500" alt="Avatar">
+                <h3 class="text-2xl font-bold mt-4 text-gray-800">{{ user.username }}</h3>
+                <p class="text-gray-500">📞 {{ profile.phone_number|default:"Не указан" }}</p>
+                <p class="text-gray-600 text-sm mt-2">{{ profile.description|default:'Нет описания' }}</p>
+                <a href="{% url 'accounts:edit_profile' %}"
+                   class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Редактировать</a>
             </div>
         </div>
-        <div class="md:col-span-2">
-            <h3 class="text-2xl font-bold text-gray-800 mb-4 animate-slide-in">Создать заказ</h3>
-            <div class="bg-gray-50 p-6 rounded-lg custom-shadow animate-fade-in">
-                <a href="{% url 'orders:create_order' %}" class="w-full py-3 btn-primary text-white rounded-lg hover-scale text-center block">Создать новый заказ</a>
-            </div>
-            <h3 class="text-2xl font-bold text-gray-800 mt-6 mb-4 animate-slide-in">Мои заказы</h3>
-            <div class="space-y-4">
-                {% for order in orders %}
-                    <div class="p-6 bg-gray-50 rounded-lg hover:bg-green-50 hover-scale">
-                        <p><strong>Услуга:</strong> {{ order.service_type.name|default:'Не указано' }}</p>
-                        <p><strong>Адрес:</strong> {{ order.address|default:'Не указан' }}</p>
-                        <p><strong>Район:</strong> {{ order.district|default:'Не указан' }}</p>
-                        <p><strong>Стоимость:</strong> {{ order.cost|default:'Не указана'|floatformat:2 }} тг.</p>
-                        <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
-                        <p><strong>Описание:</strong> {{ order.description|default:'Нет описания' }}</p>
-                        <p><strong>Телефон клиента:</strong> {{ order.customer_id.profile.phone_number|default:'Не указан' }}</p>
-                        <p><strong>Работник:</strong> {{ order.worker_id.username|default:'Не назначен' }}</p>
-                        <p><strong>Телефон работника:</strong> {{ order.worker_id.profile.phone_number|default:'Не назначен' }}</p>
-                        <p><strong>Координаты (Долгота):</strong> {{ order.longitude|default:'Не указана' }}</p>
-                        <p><strong>Координаты (Широта):</strong> {{ order.latitude|default:'Не указана' }}</p>
-                        <p><strong>Желаемое время:</strong> {{ order.desired_time|date:'d.m.Y H:i'|default:'Не указано' }}</p>
-                        <p><strong>Дата создания:</strong> {{ order.created_at|date:'d.m.Y H:i' }}</p>
-                        <p><strong>Дата обновления:</strong> {{ order.updated_at|date:'d.m.Y H:i' }}</p>
-                        <p><strong>Дата завершения:</strong> {{ order.completed_at|date:'d.m.Y H:i'|default:'Не указано' }}</p>
-                        {% if order.status == 'available' %}
-                            <form method="post" action="{% url 'orders:cancel_customer_order' order.id %}" class="mt-2">
-                                {% csrf_token %}
-                                <button type="submit" class="w-full py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 hover-scale">Отменить заказ</button>
-                            </form>
-                        {% endif %}
-                        {% if order.status == 'completed' and not order.rating %}
-                            <a href="{% url 'orders:rate_order' order.id %}" class="mt-2 inline-block py-3 px-6 btn-primary text-white rounded-lg hover-scale">Оценить</a>
-                        {% endif %}
-                        {% if order.rating %}
-                            <p><strong>Оценка:</strong> {{ order.rating }}</p>
-                        {% endif %}
-                    </div>
-                {% empty %}
-                    <p class="p-6 bg-gray-50 rounded-lg text-gray-500">Заказов нет.</p>
-                {% endfor %}
+
+        <!-- Функции: создать заказ -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Кнопка создания -->
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <h2 class="text-xl font-semibold text-gray-800 mb-3">📝 Создать заказ</h2>
+                <a href="{% url 'orders:create_order' %}"
+                   class="block bg-blue-600 text-white text-center py-3 rounded hover:bg-blue-700">Создать новый заказ</a>
+                    
             </div>
         </div>
     </div>

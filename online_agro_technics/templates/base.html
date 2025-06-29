@@ -52,6 +52,10 @@
                             <li><a class="text-white hover:text-gray-200 transition" href="{% url 'forum:forum_list' %}">Форум</a></li>
                             <li><a class="text-white hover:text-gray-200 transition" href="{% url 'bookings:available_workers' %}">Бронирование</a></li>
                             <li><a class="text-white hover:text-gray-200 transition" href="{% url 'helpdesk:ticket_list' %}">Техподдержка</a></li>
+                            <li><a class="text-white hover:text-gray-200 transition" href="{% url 'news:news_list' %}">Новости</a></li>
+                            <li><a class="text-white hover:text-gray-200 transition" href="{% url 'contests:contest_list' %}">Конкурсы</a></li>
+                            <li><a class="text-white hover:text-gray-200 transition" href="{% url 'subsidies:subsidies_info' %}">Субсидии</a></li>
+                            <li><a class="text-white hover:text-gray-200 transition" href="{% url 'orders:my_orders' %}" > Мои заказы</a>
                             {% if user.profile.is_worker %}
                                 <li><a class="text-white hover:text-gray-200 transition" href="{% url 'bookings:worker_availability' %}">Свободное время</a></li>
                                 <li><a class="text-white hover:text-gray-200 transition" href="{% url 'bookings:worker_bookings' %}">Мои брони</a></li>
@@ -73,6 +77,11 @@
                         <li><a class="text-white hover:text-gray-200 transition" href="{% url 'forum:forum_list' %}">Форум</a></li>
                         <li><a class="text-white hover:text-gray-200 transition" href="{% url 'bookings:available_workers' %}">Бронирование</a></li>
                         <li><a class="text-white hover:text-gray-200 transition" href="{% url 'helpdesk:ticket_list' %}">Техподдержка</a></li>
+                        <li><a class="text-white hover:text-gray-200 transition" href="{% url 'news:news_list' %}">Новости</a></li>
+                        <li><a class="text-white hover:text-gray-200 transition" href="{% url 'contests:contest_list' %}">Конкурсы</a></li>
+                        <li><a class="text-white hover:text-gray-200 transition" href="{% url 'subsidies:subsidies_info' %}">Субсидии</a></li>
+                        <li><a class="text-white hover:text-gray-200 transition" href="{% url 'orders:my_orders' %}" > Мои заказы</a>
+
                         {% if user.profile.is_worker %}
                             <li><a class="text-white hover:text-gray-200 transition" href="{% url 'bookings:worker_availability' %}">Свободное время</a></li>
                             <li><a class="text-white hover:text-gray-200 transition" href="{% url 'bookings:worker_bookings' %}">Мои брони</a></li>

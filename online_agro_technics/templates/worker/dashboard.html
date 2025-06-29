@@ -1,42 +1,175 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Панель работника{% endblock %}
+{% block title %}Панель рабочего{% endblock %}
+
 {% block content %}
-<div class="container mx-auto p-8 bg-white rounded-xl custom-shadow animate-fade-in">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-            <div class="bg-gray-50 p-6 rounded-lg custom-shadow animate-fade-in">
-                <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'images/default_avatar.jpg' %}{% endif %}" class="rounded-lg w-full h-48 object-cover" alt="Avatar">
-                <div class="text-center mt-4">
-                    <h5 class="text-xl font-semibold text-gray-800">{{ user.username }}</h5>
-                    <p class="text-gray-600">{{ profile.description|default:'Нет описания' }}</p>
-                    <p class="text-gray-600">Завершено заказов: <span class="font-bold">{{ profile.completed_orders }}</span></p>
-                    <p class="text-gray-600">Рейтинг: <span class="font-bold">{{ profile.rating|floatformat:1 }}</span></p>
-                    <p class="text-gray-600">Телефон: {{ profile.phone_number|default:"Не указан" }}</p>
-                    <a href="{% url 'accounts:edit_profile' %}" class="mt-4 inline-block py-3 px-6 btn-primary text-white rounded-lg hover-scale">Редактировать профиль</a>
-                </div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 animate-fade-in">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Профиль -->
+        <div class="bg-white p-6 rounded-2xl shadow-xl space-y-4">
+            <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'images/default_avatar.jpg' %}{% endif %}" class="w-32 h-32 mx-auto rounded-full shadow-md object-cover">
+            <div class="text-center">
+                <h2 class="text-xl font-bold">{{ user.username }}</h2>
+                <p class="text-gray-500 text-sm">{{ profile.description|default:'Нет описания' }}</p>
+                <p class="text-sm">📞 {{ profile.phone_number|default:"Не указан" }}</p>
             </div>
-            <div class="bg-gray-50 p-6 rounded-lg custom-shadow mt-4 animate-fade-in">
-                <h5 class="text-xl font-semibold text-gray-800">Статистика заказов</h5>
-                <canvas id="ordersChart" class="mt-4" style="max-height: 300px;"></canvas>
+            <div class="flex justify-between text-sm text-gray-700">
+                <div><strong>Завершено:</strong> {{ profile.completed_orders }}</div>
+                <div><strong>Рейтинг:</strong> {{ profile.rating|floatformat:1 }}</div>
+            </div>
+            <a href="{% url 'accounts:edit_profile' %}" class="block w-full bg-green-600 hover:bg-green-700 text-white text-center py-2 rounded-lg transition duration-200">Редактировать профиль</a>
+
+            <!-- Статистика -->
+            <div class="mt-6">
+                <h3 class="text-center text-lg font-semibold text-gray-700">Статистика заказов</h3>
+                <canvas id="ordersChart" class="mt-4 h-64"></canvas>
             </div>
         </div>
-        <div class="md:col-span-2">
+
+        <!-- Контент: заказы -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Текущий заказ -->
             {% if current_order %}
-                <div class="bg-gray-50 p-6 rounded-lg custom-shadow animate-fade-in">
-                    <h5 class="text-xl font-semibold text-blue-700">Текущий заказ</h5>
-                    <p><strong>Услуга:</strong> {{ current_order.service_type.name|default:'Не указано' }}</p>
-                    <p><strong>Адрес:</strong> {{ current_order.address|default:'Не указан' }}</p>
-                    <p><strong>Район:</strong> {{ current_order.district|default:'Не указан' }}</p>
-                    <p><strong>Стоимость:</strong> {{ current_order.cost|default:'Не указана'|floatformat:2 }} тг.</p>
+            <div class="bg-white p-6 rounded-2xl shadow-md">
+                <h3 class="text-lg font-bold text-blue-600 mb-4">🛠️ Текущий заказ</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <p><strong>Услуга:</strong> {{ current_order.service_type.name|default:"-" }}</p>
+                    <p><strong>Стоимость:</strong> {{ current_order.cost|floatformat:2 }} тг.</p>
+                    <p><strong>Адрес:</strong> {{ current_order.address|default:"-" }}</p>
+                    <p><strong>Район:</strong> {{ current_order.district|default:"-" }}</p>
                     <p><strong>Статус:</strong> {{ current_order.get_status_display }}</p>
-                    <p><strong>Описание:</strong> {{ current_order.description|default:'Нет описания' }}</p>
-                    <p><strong>Телефон клиента:</strong> {{ current_order.customer_id.profile.phone_number|default:'Не указан' }}</p>
-                    <p><strong>Телефон работника:</strong> {{ current_order.worker_id.profile.phone_number|default:'Не назначен' }}</p>
-                    <p><strong>Координаты (Долгота):</strong> {{ current_order.longitude|default:'Не указана' }}</p>
-                    <p><strong>Координаты (Широта):</strong> {{ current_order.latitude|default:'Не указана' }}</p>
-                    <p><strong>Желаемое время:</strong> {{ current_order.desired_time|date:'d.m.Y H:i'|default:'Не указано' }}</p>
-                    <p><strong>Дата создания:</strong> {{ current_order.created_at|date:'d.m.Y H:i' }}</p>
-                    <p><strong>Дата обновления:</strong> {{ current_order.updated_at|date:'d.m.Y H:i' }}</p>
-                    <div id="map" style="height: 200px; border-radius: 8px;" class="mt-2"></div>
-                    {% if current_order.status == 'accepted'
+                    <p><strong>Телефон заказчика:</strong> {{ current_order.customer_id.profile.phone_number }}</p>
+                    <p><strong>Широта:</strong> {{ current_order.latitude }}</p>
+                    <p><strong>Долгота:</strong> {{ current_order.longitude }}</p>
+                    <p><strong>Время:</strong> {{ current_order.desired_time|date:"d.m.Y H:i" }}</p>
+                    <p><strong>Создан:</strong> {{ current_order.created_at|date:"d.m.Y H:i" }}</p>
+                </div>
+                <div id="map" class="h-48 mt-4 rounded-lg border"></div>
+
+                {% if current_order.status == 'accepted' %}
+                <form method="post" action="{% url 'orders:start_order' current_order.id %}" class="mt-4">
+                    {% csrf_token %}
+                    <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition">Начать работу</button>
+                </form>
+                {% elif current_order.status == 'in_progress' %}
+                <form method="post" action="{% url 'orders:complete_order' current_order.id %}" class="mt-4">
+                    {% csrf_token %}
+                    <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition">Завершить</button>
+                </form>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="text-center text-gray-500">Нет активных заказов.</div>
+            {% endif %}
+
+            <!-- Доступные заказы -->
+<div class="bg-white p-6 rounded-2xl shadow-md mt-6">
+    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+        📋 Доступные заказы
+    </h3>
+
+    {% if available_orders %}
+        <div class="space-y-4">
+            {% for order in available_orders %}
+                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm hover:shadow transition">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-blue-700">{{ order.get_status_display }}</span>
+                        <span class="text-sm text-gray-500">{{ order.cost|floatformat:2 }} тг</span>
+                    </div>
+                    <p class="text-sm"><strong>Услуга:</strong> {{ order.service_type.name|default:"—" }}</p>
+                    <p class="text-sm"><strong>Адрес:</strong> {{ order.address|default:"—" }}</p>
+                    <p class="text-sm"><strong>Район:</strong> {{ order.district|default:"—" }}</p>
+                    <p class="text-sm"><strong>Заказчик:</strong> {{ order.customer_id.username|default:"—" }}</p>
+                    <p class="text-sm"><strong>Телефон:</strong> {{ order.customer_id.profile.phone_number|default:"—" }}</p>
+
+                    <form method="post" action="{% url 'orders:accept_order' order.id %}" class="mt-3">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="w-full text-white bg-green-600 hover:bg-green-700 font-semibold py-2 px-4 rounded-lg transition duration-200">
+                            Принять заказ
+                        </button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Если заказов нет -->
+        <div class="flex items-center justify-center p-6 bg-gray-50 border border-dashed border-gray-300 rounded-lg">
+            <p class="text-gray-500 text-sm flex items-center gap-2">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Нет доступных заказов.
+            </p>
+        </div>
+    {% endif %}
+</div>
+
+            <!-- История заказов -->
+<div class="bg-white p-6 rounded-2xl shadow-md mt-6">
+    <h3 class="text-xl font-bold text-gray-800 mb-5 flex items-center gap-2">
+        📜 История заказов
+    </h3>
+
+    {% if completed_orders %}
+        <div class="space-y-4">
+            {% for order in completed_orders %}
+                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm hover:shadow transition">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-green-700">✅ {{ order.get_status_display }}</span>
+                        <span class="text-sm text-gray-500">
+                            Оценка: 
+                            {% if order.rating %}
+                                <strong>{{ order.rating }}</strong>
+                            {% else %}
+                                <em class="text-red-500">Не оценено</em>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <p class="text-sm"><strong>Услуга:</strong> {{ order.service_type.name|default:"—" }}</p>
+                    <p class="text-sm"><strong>Адрес:</strong> {{ order.address|default:"—" }}</p>
+                    <p class="text-sm text-gray-500">
+                        <strong>Дата:</strong> 
+                        {{ order.completed_at|date:"d.m.Y H:i"|default:"—" }}
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-500 italic">Нет завершённых заказов.</p>
+    {% endif %}
+</div>
+
+            
+
+<!-- Chart.js и карта -->
+<script>
+const ctx = document.getElementById('ordersChart').getContext('2d');
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Доступно', 'Принято', 'В процессе', 'Завершено'],
+        datasets: [{
+            data: [
+                {{ order_stats.available|default:0 }},
+                {{ order_stats.accepted|default:0 }},
+                {{ order_stats.in_progress|default:0 }},
+                {{ order_stats.completed|default:0 }}
+            ],
+            backgroundColor: ['#f87171', '#60a5fa', '#fbbf24', '#34d399'],
+            hoverOffset: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

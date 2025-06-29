@@ -66,3 +66,26 @@ class TicketResponse(models.Model):
     class Meta:
         verbose_name = "Тікет жауабы"
         verbose_name_plural = "Тікет жауаптары"
+
+class HelpdeskTicket(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Ожидание'),
+        ('in_progress', 'В процессе'),
+        ('resolved', 'Решено'),
+    ]
+
+    PRIORITY_CHOICES = [
+        ('low', 'Низкий'),
+        ('medium', 'Средний'),
+        ('high', 'Высокий'),
+    ]
+
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title

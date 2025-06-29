@@ -23,3 +23,4 @@ class OrderForm(forms.ModelForm):
             required=False,
             label='Район'
         )
+

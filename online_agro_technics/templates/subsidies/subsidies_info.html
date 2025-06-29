@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Субсидиялар{% endblock %}
+
+{% block content %}
+<div class="container mx-auto mt-10 px-4">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">Субсидиялар туралы ақпарат</h1>
+    <p class="text-gray-700 mb-4">
+        Біздің платформа ауыл шаруашылығы субсидиялары туралы ақпаратты ұсынады.
+        Субсидиялар фермерлер мен ауыл шаруашылық кәсіпорындарына техника, жабдықтар және басқа да ресурстарды сатып алуға көмектеседі.
+    </p>
+
+    <h3 class="text-xl font-semibold text-green-700 mb-3">Қолжетімді субсидиялар:</h3>
+    <ul class="list-disc pl-6 text-gray-800 space-y-2">
+        <li><strong>Техника субсидиясы:</strong> Жаңа ауыл шаруашылық техникаларын сатып алу үшін 30%-ға дейін қаржыландыру.</li>
+        <li><strong>Жабдық субсидиясы:</strong> Ирригациялық жүйелер мен басқа жабдықтарға 20% жеңілдік.</li>
+        <li><strong>Агро-стартап субсидиясы:</strong> Жаңа фермерлерге арналған гранттар.</li>
+    </ul>
+
+    {% if user.is_authenticated %}
+        <a href="{% url 'subsidies:submit_inquiry' %}" class="btn btn-primary mt-5">Сұрау жіберу</a>
+    {% else %}
+        <p class="mt-4 text-gray-600">
+            Сұрау жіберу үшін <a href="{% url 'accounts:login' %}" class="text-blue-600 underline">жүйеге кіріңіз</a>.
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

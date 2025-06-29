@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Конкурсы{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Конкурсы</h1>
+
+    {% if user.profile.is_admin %}
+        <a href="{% url 'contests:create_contest' %}" class="btn btn-primary mb-3">Добавить конкурс</a>
+    {% endif %}
+
+    {% for contest in contests %}
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{% url 'contests:contest_detail' contest.id %}" class="text-decoration-none text-dark">
+                        {{ contest.title }}
+                    </a>
+                </h5>
+                <p class="card-text">{{ contest.description|truncatewords:30 }}</p>
+                <p class="card-text">
+                    <small class="text-muted">
+                        Начало: {{ contest.start_date|date:"d.m.Y H:i" }} |
+                        Окончание: {{ contest.end_date|date:"d.m.Y H:i" }}
+                    </small>
+                </p>
+                <p class="card-text"><strong>Приз:</strong> {{ contest.prize }}</p>
+            </div>
+        </div>
+    {% empty %}
+        <p>Пока конкурсов нет.</p>
+    {% endfor %}
+</div>
+{% endblock %}

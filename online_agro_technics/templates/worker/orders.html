@@ -1,38 +1,53 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block title %}Заказы рабочего{% endblock %}
+
 {% block content %}
 <div class="container mx-auto p-6 mt-6 bg-white rounded-xl shadow-2xl animate-fade-in">
     <h3 class="text-2xl font-bold text-green-700 mb-4 animate-slide-in">Мои заказы</h3>
-    <div class="space-y-4">
-        {% for order in orders %}
-            <div class="p-4 bg-gray-50 rounded-lg hover:bg-green-50 transition transform hover:-translate-y-1">
-                <p><strong>Услуга:</strong> {{ order.service_type.name|default:'Не указано' }}</p>
-                <p><strong>Адрес:</strong> {{ order.address|default:'Не указан' }}</p>
-                <p><strong>Район:</strong> {{ order.district|default:'Не указан' }}</p>
-                <p><strong>Стоимость:</strong> {{ order.cost|default:'Не указана'|floatformat:2 }} тг.</p>
-                <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
-                <p><strong>Заказчик:</strong> {{ order.customer_id.username|default:'Не указан' }}</p>
-                <p><strong>Телефон заказчика:</strong> {{ order.customer_id.profile.phone_number|default:'Не указан' }}</p>
-                {% if order.status == 'accepted' %}
-                    <form method="post" action="{% url 'orders:start_order' order.id %}" class="mt-2">
-                        {% csrf_token %}
-                        <button type="submit" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition animate-pulse">Начать работу</button>
-                    </form>
-                {% elif order.status == 'in_progress' %}
-                    <form method="post" action="{% url 'orders:complete_order' order.id %}" class="mt-2">
-                        {% csrf_token %}
-                        <button type="submit" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition animate-pulse">Завершить</button>
-                    </form>
-                {% endif %}
-                {% if order.status == 'completed' and order.rating %}
-                    <p><strong>Оценка:</strong> {{ order.rating }}</p>
-                {% endif %}
-            </div>
-        {% empty %}
-            <p class="p-4 bg-gray-50 rounded-lg text-gray-500">Заказов нет</p>
-        {% endfor %}
+    {% for order in orders %}
+    <div class="card mb-3 order-card animate-fade-in-up">
+        <div class="card-body">
+            <p><strong>Услуга:</strong> {{ order.service_type.name|default:'Не указано' }}</p>
+            <p><strong>Адрес:</strong> {{ order.address|default:'Не указан' }}</p>
+            <p><strong>Район:</strong> {{ order.district|default:'Не указан' }}</p>
+            <p><strong>Стоимость:</strong> {{ order.cost|default:'Не указана'|floatformat:2 }} тг.</p>
+            <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
+            <p><strong>Заказчик:</strong> {{ order.customer_id.username|default:'Не указан' }}</p>
+            <p><strong>Телефон заказчика:</strong> {{ order.customer_id.profile.phone_number|default:'Не указан' }}</p>
+            {% if order.status == 'accepted' %}
+            <form method="post" action="{% url 'orders:start_order' order.id %}" class="mt-2">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary w-full animate-pulse">Начать работу</button>
+            </form>
+            {% elif order.status == 'in_progress' %}
+            <form method="post" action="{% url 'orders:complete_order' order.id %}" class="mt-2">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary w-full animate-pulse">Завершить</button>
+            </form>
+            {% endif %}
+            {% if order.status == 'completed' and order.rating %}
+            <p><strong>Оценка:</strong> {{ order.rating }}</p>
+            {% endif %}
+        </div>
     </div>
-    <a href="{% url 'orders:worker_dashboard' %}" class="mt-4 inline-block py-2 px-4 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition animate-pulse">Вернуться к панели</a>
+    {% empty %}
+    <div class="card mb-3 animate-fade-in-up">
+        <div class="card-body text-center text-gray-500">Заказов нет</div>
+    </div>
+    {% endfor %}
+    <a href="{% url 'orders:worker_dashboard' %}" class="btn btn-primary">Вернуться к панели</a>
 </div>
+
+<style>
+    .order-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .order-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
+    .animate-fade-in { animation: fadeIn 0.6s ease-in-out; }
+    .animate-fade-in-up { animation: fadeInUp 0.6s ease-in-out; }
+    .animate-slide-in { animation: slideIn 0.6s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+</style>
 {% endblock %}
